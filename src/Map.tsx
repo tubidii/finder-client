@@ -6,56 +6,46 @@ import {ArrowBack} from '@mui/icons-material'
 import {Button, Fab} from "@mui/material";
 import Link from "next/link";
 
-class Map extends React.PureComponent {
-  state = {
-    locationSet: false,
-    viewport: {
+const Map = () => {
+  const [viewPort,setViewPort] = useState<{}>({
       width: "100vw",
       height: "100vh",
       latitude: 0.0236,
       longitude: 37.9062,
       zoom: 7
-    },
-    userLocation: {
-      longitude: undefined,
-      latitude: undefined
-    }
-  }
+  });
+  const [userLocation,setUserLocation] = useState<{}>({
+    longitude: undefined,
+    latitude: undefined
+  });
+  const [locationSet,setLocationSet] = useState<bool>(false);
+  
   handleViewportChange = (viewport: any) => {
-    this.setState({
-      viewport: {...viewport, transitionDuration: 1000}
+    setViewPort({
+      ...viewport, transitionDuration: 1000
     })
   }
 
   handleMapCLick = ({lngLat: [longitude, latitude]}: { lngLat: [number, number] }) => {
-    this.setState({
-      userLocation: {
+    setUserLocation({
         longitude,
         latitude
-      }
     })
   }
 
-  componentDidMount() {
-
-  }
-
+  
   setUserLocation = () => {
     navigator.geolocation.getCurrentPosition(position => {
-      const newViewport = {
-        ...this.state.viewport,
+      setViewPort({
+        ...viewPort,
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         zoom: 12
-      }
-      const userLocation = {
+      });
+      setLocationSet(true)
+      setUserLocation({
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-      }
-      this.setState({
-        viewport: newViewport,
-        userLocation: userLocation,
-        locationSet: true
       })
     })
   }
@@ -63,24 +53,24 @@ class Map extends React.PureComponent {
   render() {
     const icon = 'LocationOnTwoTone'
     const MarkerIcon = MuiIcons[icon];
-    if (!this.state.locationSet) {
+    if (!locationSet) {
       this.setUserLocation()
     }
     return (
       <div>
         <MapGL
-          {...this.state.viewport}
+          {...viewPort}
           mapboxApiAccessToken={'pk.eyJ1IjoibWFraW5pa2EiLCJhIjoiY2t5cG43bzlsMGJtdzJvbWQ0dDlpejYyMyJ9.3KsXUjhmbYsDpskSKNnfDQ'}
           mapStyle="mapbox://styles/mapbox/dark-v10"
           onClick={this.handleMapCLick}
           onViewportChange={this.handleViewportChange}
         >
           {
-            this.state.userLocation.longitude ?
+            userLocation.longitude ?
               (
                 <Marker
-                  longitude={this.state.userLocation.longitude}
-                  latitude={this.state.userLocation.latitude as unknown as number}>
+                  longitude={userLocation.longitude}
+                  latitude={userLocation.latitude as unknown as number}>
                   <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
                 </Marker>
               )
