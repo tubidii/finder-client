@@ -50,7 +50,7 @@ const Map = () => {
     })
   }
 
-  render() {
+  
     const icon = 'LocationOnTwoTone'
     const MarkerIcon = MuiIcons[icon];
     if (!locationSet) {
@@ -94,7 +94,7 @@ const Map = () => {
         </Link>
       </div>
     )
-  }
 }
+
 
 export default Map
