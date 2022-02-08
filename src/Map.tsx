@@ -3,8 +3,11 @@ import MapGL, {Marker} from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import * as MuiIcons from '@mui/icons-material'
 import {ArrowBack} from '@mui/icons-material'
-import {Button, Fab} from "@mui/material";
+import {Button} from "@mui/material";
 import Link from "next/link";
+import {Location} from '../types'
+import {getInstance} from "../axios";
+import {withRouter} from "next/router";
 
 class Map extends React.PureComponent {
   state = {
@@ -14,30 +17,18 @@ class Map extends React.PureComponent {
       height: "100vh",
       latitude: 0.0236,
       longitude: 37.9062,
-      zoom: 7
+      zoom: 15
     },
     userLocation: {
       longitude: undefined,
       latitude: undefined
-    }
+    },
+    locations: []
   }
   handleViewportChange = (viewport: any) => {
     this.setState({
       viewport: {...viewport, transitionDuration: 1000}
     })
-  }
-
-  handleMapCLick = ({lngLat: [longitude, latitude]}: { lngLat: [number, number] }) => {
-    this.setState({
-      userLocation: {
-        longitude,
-        latitude
-      }
-    })
-  }
-
-  componentDidMount() {
-
   }
 
   setUserLocation = () => {
@@ -46,12 +37,39 @@ class Map extends React.PureComponent {
         ...this.state.viewport,
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        zoom: 12
+        zoom: 9
       }
       const userLocation = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       }
+
+      console.log(userLocation)
+
+      const searchParams = new URLSearchParams();
+      searchParams.append("lat", userLocation.latitude.toString() )
+      searchParams.append("long", userLocation.longitude.toString() )
+      searchParams.append("rad", "20")
+      // @ts-ignore
+      searchParams.append("cat", this.props.router.query.id)
+      // @ts-ignore
+      if (this.props.router.query.id == undefined) return
+
+      // get all categories
+      getInstance().get(`locfinder/?${searchParams.toString()}`,).then(
+        (response) => {
+          // setLocations(response.data)
+          console.log(response.data)
+          this.setState({
+            locations: response.data
+          })
+        }
+      ).catch(
+        (error) => {
+          const res = error.response;
+          console.error(res);
+        }
+      )
       this.setState({
         viewport: newViewport,
         userLocation: userLocation,
@@ -60,19 +78,19 @@ class Map extends React.PureComponent {
     })
   }
 
+  componentDidMount() {
+    this.setUserLocation()
+  }
+
   render() {
     const icon = 'LocationOnTwoTone'
     const MarkerIcon = MuiIcons[icon];
-    if (!this.state.locationSet) {
-      this.setUserLocation()
-    }
     return (
       <div>
         <MapGL
           {...this.state.viewport}
           mapboxApiAccessToken={'pk.eyJ1IjoibWFraW5pa2EiLCJhIjoiY2t5cG43bzlsMGJtdzJvbWQ0dDlpejYyMyJ9.3KsXUjhmbYsDpskSKNnfDQ'}
           mapStyle="mapbox://styles/mapbox/dark-v10"
-          onClick={this.handleMapCLick}
           onViewportChange={this.handleViewportChange}
         >
           {
@@ -85,6 +103,23 @@ class Map extends React.PureComponent {
                 </Marker>
               )
               : null
+          }
+          {
+            this.state.locations.map(
+              (location: Location,index) => {
+                console.log(location)
+                // @ts-ignore
+                const MarkerIcon = MuiIcons[location.category.icon as string];
+                return (
+                  <Marker
+                    key={index}
+                    longitude={location.longitude}
+                    latitude={location.latitude}>
+                    <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
+                  </Marker>
+                )
+              }
+            )
           }
         </MapGL>
         <Link href={'/'}>
@@ -107,4 +142,4 @@ class Map extends React.PureComponent {
   }
 }
 
-export default Map
+export default withRouter(Map)

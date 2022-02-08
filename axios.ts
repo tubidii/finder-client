@@ -9,7 +9,7 @@ export const getInstance = () => {
     headers['Authorization'] = 'Token ' + token
   }
   return axios.create({
-    baseURL: `https://5d5d-41-80-113-42.ngrok.io/`,
+    baseURL: `https://0351-41-80-112-47.ngrok.io/`,
     timeout: 10000,
     headers,
   });
