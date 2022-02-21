@@ -5,9 +5,11 @@ import * as MuiIcons from '@mui/icons-material'
 import {ArrowBack} from '@mui/icons-material'
 import {Button} from "@mui/material";
 import Link from "next/link";
-import {Location} from '../types'
-import {getInstance} from "../axios";
 import {useRouter} from "next/router";
+import {getInstance} from "../axios";
+import {Location} from "../types";
+import UtilityModal from "./UtilityModal";
+
 
 type ViewPort = {
   width?: string | number,
@@ -24,8 +26,15 @@ type UserLocation = {
 }
 
 const Map = () => {
-  const [viewPort, setViewPort] = useState<ViewPort>();
+  const [viewPort, setViewPort] = useState<ViewPort>({
+          width: "100vw",
+          height: "100vh",
+          latitude: 0.0236,
+          longitude: 37.9062,
+          zoom: 10
+        });
   const [currentLocation, setCurrentLocation] = useState<UserLocation>()
+  const [location, setLocation] = useState<Location>()
   const [locations, setLocations] = useState<Location[]>()
   const {query} = useRouter();
   const categoryId = query.id;
@@ -51,12 +60,13 @@ const Map = () => {
         const searchParams = new URLSearchParams();
         searchParams.append("lat", userLocation.latitude.toString())
         searchParams.append("long", userLocation.longitude.toString())
-        searchParams.append("rad", "20")
+        searchParams.append("rad", "100")
         searchParams.append("cat", categoryId as string)
 
         // get all categories
-        getInstance().get(`locfinder/?${searchParams.toString()}`,).then(
+        getInstance().get(`locfinder/?${searchParams.toString()}`).then(
           (response) => {
+            console.log(response.data)
             setLocations(response.data)
           }
         ).catch(
@@ -68,7 +78,7 @@ const Map = () => {
         setCurrentLocation(userLocation)
 
       })
-    },[categoryId]
+    }, [categoryId]
   )
 
 
@@ -88,24 +98,20 @@ const Map = () => {
         }}
       >
         {
-          currentLocation ?
-            (
-              <Marker
-                longitude={currentLocation.longitude as number}
-                latitude={currentLocation.latitude as number}>
-                <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
-              </Marker>
-            )
-            : null
+          currentLocation &&
+          <Marker longitude={currentLocation.longitude}
+                  latitude={currentLocation.latitude}>
+            <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
+          </Marker>
         }
         {
           locations?.map(
-            (location: Location, index) => {
+            (location) => {
               // @ts-ignore
               const MarkerIcon = MuiIcons[location.category.icon];
               return (
                 <Marker
-                  key={index}
+                  onClick={()=>setLocation(location)}
                   longitude={location.longitude}
                   latitude={location.latitude}>
                   <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
@@ -128,11 +134,11 @@ const Map = () => {
           aria-label="edit">
           BACK
         </Button>
-
       </Link>
+      <UtilityModal location={location} handleClose={()=>setLocation(undefined)} />
     </div>
   )
-
 }
+
 
 export default Map

@@ -12,6 +12,7 @@ type CategoryCardProps = {
 }
 
 function CategoryCard({category}: CategoryCardProps) {
+
   // @ts-ignore
   const CategoryIcon = !category.icon ? WcIcon : MuiIcons[category.icon];
 
