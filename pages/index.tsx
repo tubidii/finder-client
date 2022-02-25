@@ -6,23 +6,26 @@ import {Grid} from "@mui/material";
 import CategoryCard from "../src/CategoryCard";
 import {getInstance} from '../axios';
 import {Category} from "../types";
-
+import axios from "axios"
 
 function IndexPage() {
   const [categories, setCategories] = useState<Category[]>()
+ 
   useEffect(
     () => {
       // get all categories
-      getInstance().get('categories/').then(
-        (response) => {
-          setCategories(response.data)
-        }
-      ).catch(
-        (error) => {
-          const res = error.response;
-          console.error(res);
-        }
-      )
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      
+      fetch("http://127.0.0.1:4545/categories/", requestOptions)
+        .then(
+          response => response.json()
+        )
+        .then(result =>{
+          setCategories(result)
+        }).catch(error => console.log('error', error));
 
     }, [setCategories]
   )

@@ -1,85 +1,44 @@
 import React from 'react'
-import MapGL, {Marker} from 'react-map-gl'
+import MapGL, { Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import * as MuiIcons from '@mui/icons-material'
-import {ArrowBack} from '@mui/icons-material'
-import {Button, Fab} from "@mui/material";
+import { ArrowBack } from '@mui/icons-material'
+import { Button, Fab } from "@mui/material";
 import Link from "next/link";
+import { useState } from 'react'
 
 const Map = () => {
-  const [viewPort,setViewPort] = useState<{}>({
-      width: "100vw",
-      height: "100vh",
-      latitude: 0.0236,
-      longitude: 37.9062,
-      zoom: 7
-  });
-  const [userLocation,setUserLocation] = useState<{}>({
-    longitude: undefined,
-    latitude: undefined
-  });
-  const [locationSet,setLocationSet] = useState<bool>(false);
-  
-  handleViewportChange = (viewport: any) => {
-    setViewPort({
-      ...viewport, transitionDuration: 1000
+  const icon = 'LocationOnTwoTone'
+  const MarkerIcon = MuiIcons[icon];
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      console.log(position)
     })
-  }
-
-  handleMapCLick = ({lngLat: [longitude, latitude]}: { lngLat: [number, number] }) => {
-    setUserLocation({
-        longitude,
-        latitude
-    })
-  }
-
-  
-  setUserLocation = () => {
-    navigator.geolocation.getCurrentPosition(position => {
-      setViewPort({
-        ...viewPort,
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        zoom: 12
-      });
-      setLocationSet(true)
-      setUserLocation({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      })
-    })
-  }
-
-  
-    const icon = 'LocationOnTwoTone'
-    const MarkerIcon = MuiIcons[icon];
-    if (!locationSet) {
-      this.setUserLocation()
-    }
     return (
       <div>
         <MapGL
-          {...viewPort}
+          {...{
+            width: "100vw",
+            height: "100vh",
+            latitude: 0.0236,
+            longitude: 37.9062,
+            zoom: 7
+          }}
           mapboxApiAccessToken={'pk.eyJ1IjoibWFraW5pa2EiLCJhIjoiY2t5cG43bzlsMGJtdzJvbWQ0dDlpejYyMyJ9.3KsXUjhmbYsDpskSKNnfDQ'}
           mapStyle="mapbox://styles/mapbox/dark-v10"
-          onClick={this.handleMapCLick}
-          onViewportChange={this.handleViewportChange}
+
         >
-          {
-            userLocation.longitude ?
-              (
-                <Marker
-                  longitude={userLocation.longitude}
-                  latitude={userLocation.latitude as unknown as number}>
-                  <MarkerIcon sx={{fontSize: '3rem', color: 'primary.light'}}/>
-                </Marker>
-              )
-              : null
-          }
+
+          <Marker
+            longitude={-1.1486878318771425}
+            latitude={37.109204711754714}>
+            <MarkerIcon sx={{ fontSize: '3rem', color: 'primary.light' }} />
+          </Marker>
+
         </MapGL>
         <Link href={'/'}>
           <Button
-            startIcon={<ArrowBack/>}
+            startIcon={<ArrowBack />}
             sx={{
               position: 'absolute',
               left: "3rem",
@@ -94,7 +53,7 @@ const Map = () => {
         </Link>
       </div>
     )
-}
+  }
 
 
 export default Map
