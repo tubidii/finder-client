@@ -19,15 +19,17 @@ function IndexPage() {
         redirect: 'follow'
       };
       
-      fetch("https://bathroom-finders.herokuapp.com/categories/", requestOptions)
-        .then(
-          response => response.json()
-        )
-        .then(result =>{
-          setCategories(result)
-        }).catch(error => console.log('error', error));
-
-    }, [setCategories]
+      getInstance().get('categories').then(
+        (response) => {
+          console.log(response.data)
+          setCategories(response.data)
+        }
+      ).catch(
+        (error) => {
+          console.log(error)
+        }
+      )
+    }, []
   )
 
   return (
