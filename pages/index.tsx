@@ -19,7 +19,7 @@ function IndexPage() {
         redirect: 'follow'
       };
       
-      fetch("http://127.0.0.1:4545/categories/", requestOptions)
+      fetch("https://bathroom-finders.herokuapp.com/categories/", requestOptions)
         .then(
           response => response.json()
         )
