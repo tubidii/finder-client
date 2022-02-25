@@ -9,7 +9,7 @@ export const getInstance = () => {
     headers['Authorization'] = 'Token ' + token
   }
   return axios.create({
-    baseURL: `http://127.0.0.1:4657/`,
+    baseURL: `https://bathroom-finders.herokuapp.com/`,
     timeout: 10000,
     headers,
   });
